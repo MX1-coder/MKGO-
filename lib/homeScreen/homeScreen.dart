@@ -5,6 +5,7 @@ import 'dart:convert';
 // import 'dart:js_interop';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:crypto/crypto.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -92,6 +93,7 @@ class _HomeScreen2State extends State<HomeScreen>
       final apiData = jsonDecode(responseBody);
 
       // print(apiData);
+      print('Chauffeur id for the specific trip: ${apiData['chauffeur']}');
 
       List<Map<String, dynamic>> tripList = [];
       for (var courses in apiData['courses']) {
@@ -100,6 +102,7 @@ class _HomeScreen2State extends State<HomeScreen>
         int nombrePassager = courses['nombrePassager'];
         String commentaire = courses['commentaire'];
         String paiement = courses['paiement'];
+        String chauffeur = courses['chauffeur'];
         int client = courses['client'];
         String status1 = courses['affectationCourses'][0]['status1'];
         String status2 = courses['affectationCourses'][0]['status2'];
@@ -132,12 +135,13 @@ class _HomeScreen2State extends State<HomeScreen>
           'depart': depart,
           'arrive': arrive,
           "imgType": imgType,
+          "chauffeur": chauffeur
         });
       }
 
       // print(tripList);
       box.write('tripList', tripList);
-
+      print('Checking list for chauffeurid: $tripList');
       setState(() {
         trips = tripList;
       });
@@ -179,6 +183,7 @@ class _HomeScreen2State extends State<HomeScreen>
       final responseBody = await response.stream.bytesToString();
       final apiData = jsonDecode(responseBody);
 
+      // print('Chauffeur id for the specific trip: ${apiData['courses']['chauffeur'].toString()}');
       print(apiData);
 
       List<Map<String, dynamic>> tripPresentAPI = [];
@@ -188,6 +193,7 @@ class _HomeScreen2State extends State<HomeScreen>
         int nombrePassager = courses['nombrePassager'];
         String commentaire = courses['commentaire'];
         String paiement = courses['paiement'];
+        String chauffeur = courses['chauffeur'];
         int client = courses['client'];
         String status1 = courses['affectationCourses'][0]['status1'];
         String status2 = courses['affectationCourses'][0]['status2'];
@@ -221,11 +227,13 @@ class _HomeScreen2State extends State<HomeScreen>
           'depart': depart,
           'arrive': arrive,
           "imgType": imgType,
+          "chauffeur": chauffeur
         });
       }
 
       // print(tripPresent);
       box.write('present', tripPresentAPI);
+      print('Checking list for chauffeurid: $tripPresentAPI');
       setState(() {
         tripsPresent = tripPresentAPI;
       });
@@ -274,6 +282,7 @@ class _HomeScreen2State extends State<HomeScreen>
         int nombrePassager = courses['nombrePassager'];
         String commentaire = courses['commentaire'];
         String paiement = courses['paiement'];
+        String chauffeur = courses['chauffeur'];
         int client = courses['client'];
         String status1 = courses['affectationCourses'][0]['status1'];
         String status2 = courses['affectationCourses'][0]['status2'];
@@ -306,12 +315,13 @@ class _HomeScreen2State extends State<HomeScreen>
           'depart': depart,
           'arrive': arrive,
           "imgType": imgType,
+          'chauffeur': chauffeur
         });
       }
 
       // print(tripFuture);
       box.write('future', tripFutureAPI);
-      List<dynamic> tripFuture2 = box.read('future') ?? [];
+      print('Checking list for chauffeurid: $tripFutureAPI');
       setState(() {
         tripsFuture = tripFutureAPI;
       });
@@ -321,6 +331,46 @@ class _HomeScreen2State extends State<HomeScreen>
       print(response.reasonPhrase);
     }
     return [];
+  }
+
+    Future<void> getDetails() async {
+    final box = GetStorage();
+    final _token = box.read('token') ?? '';
+    print("token called: $_token");
+
+    final storage = GetStorage();
+    final UserID = storage.read('user_id');
+
+    final configData = await rootBundle.loadString('assets/config/config.json');
+    final configJson = json.decode(configData);
+
+    final gestionBaseUrl = configJson['gestion_baseUrl'];
+    final gestionApiKey = configJson['gestion_apiKey'];
+
+    final gestionMainUrl =
+        gestionBaseUrl + "mob/one-employe/" + UserID.toString();
+
+    var headers = {
+      'x-api-key': '$gestionApiKey',
+      'Authorization': 'Bearer ' + _token
+    };
+    var request = http.Request('GET', Uri.parse(gestionMainUrl));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      final responseBody = await response.stream.bytesToString();
+      final apiData = jsonDecode(responseBody);
+
+      String name2 = apiData['nom'];
+      String surname2 = apiData['prenom'];
+     
+    
+    } else {
+      print(response.reasonPhrase);
+    }
   }
 
   void showAlertDialog(BuildContext context) {
@@ -391,6 +441,7 @@ class _HomeScreen2State extends State<HomeScreen>
     super.initState();
     // _requestLocationAndNotificationPermission();
     // init();
+    decoding();
     _requestLocationAndNotificationPermission();
     init();
     _changeAujourdHuiContainerColor();
@@ -403,12 +454,10 @@ class _HomeScreen2State extends State<HomeScreen>
       isAujoudHui = true;
       isPasser = false;
       isAvenir = false;
-    });
-
-    setState(() {
       isRefreshed = true;
     });
-    Future.delayed(Duration(milliseconds: 300), () {
+
+    Future.delayed(Duration(milliseconds: 500), () {
       setState(() {
         isRefreshed = false;
       });
@@ -554,15 +603,26 @@ class _HomeScreen2State extends State<HomeScreen>
     });
   }
 
-  bool isExpanded = false;
-  bool showLeftButton = false;
-  bool showRightButton = false;
+  void decoding() {
+    String originalValue = "Hello, World!";
 
-  void toggleButtons() {
-    setState(() {
-      showLeftButton = !showLeftButton;
-      showRightButton = !showRightButton;
-    });
+    // Hash the original value using SHA-256
+    String hashedValue = sha256.convert(utf8.encode(originalValue)).toString();
+
+    print("Original Value: $originalValue");
+    print("Hashed Value: $hashedValue");
+
+    // Now, let's check if a given input matches the hashed value
+    String inputToCheck =
+        "Hello, World!"; // Change this to test different values
+
+    String hashedInput = sha256.convert(utf8.encode(inputToCheck)).toString();
+
+    if (hashedInput == hashedValue) {
+      print("Input matches the hashed value!");
+    } else {
+      print("Input does not match the hashed value.");
+    }
   }
 
   Future<void> handleRefresh() async {
@@ -1045,6 +1105,9 @@ class _HomeScreen2State extends State<HomeScreen>
       final apiData = jsonDecode(responseBody);
 
       List<Map<String, dynamic>> Filteredlist = [];
+
+      print('Chauffeur id for the specific trip: ${apiData['chauffeur']}');
+
       int total = apiData['totalCount'];
       print('Total Count : $total');
       for (var courses in apiData['courses']) {
@@ -1053,6 +1116,7 @@ class _HomeScreen2State extends State<HomeScreen>
         int nombrePassager = courses['nombrePassager'];
         String commentaire = courses['commentaire'];
         String paiement = courses['paiement'];
+        String chuaffeur = courses['chauffeur'];
         int client = courses['client'];
         var affectationCourses = courses['affectationCourses'];
         String reference = courses['reference'];
@@ -1088,7 +1152,8 @@ class _HomeScreen2State extends State<HomeScreen>
           'telephone': telephone,
           'imgType': imgType,
           'depart': depart,
-          'arrive': arrive
+          'arrive': arrive,
+          'chauffeur': chuaffeur
         });
       }
       print('Filtered List in API: $Filteredlist');
@@ -1266,6 +1331,12 @@ class _HomeScreen2State extends State<HomeScreen>
     tripListPast();
     tripListPresent();
     tripListFuture();
+
+    setState(() {
+      trips = trips.toList();
+      tripsPresent = tripsPresent.toList();
+      tripsFuture = tripsFuture.toList();
+    });
   }
 
   void filteredData() {
@@ -1864,100 +1935,118 @@ class _HomeScreen2State extends State<HomeScreen>
                               isAvenir &&
                               !isPasser &&
                               !isAujoudHui)
-                          ? Expanded(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Center(
-                                      child: Image.asset(
-                                          'assets/images/noTrip.png')),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  Text(
-                                    "No Trips Avaialble..!!",
-                                    style: TextStyle(
-                                      color: Color(0xFF3954A4),
-                                      fontSize: 20,
-                                      fontFamily: 'Display',
-                                      fontWeight: FontWeight.w400,
-                                      height: 0,
-                                    ),
-                                  )
-                                ],
-                              ),
-                            )
-                          : (trips.isEmpty &&
-                                  isPasser &&
-                                  !isAvenir &&
-                                  !isAujoudHui)
-                              ? Expanded(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Center(
-                                          child: Image.asset(
-                                              'assets/images/noTrip.png')),
-                                      SizedBox(
-                                        height: 10,
-                                      ),
-                                      Text(
-                                        "No Trips Avaialble..!!",
-                                        style: TextStyle(
-                                          color: Color(0xFF3954A4),
-                                          fontSize: 20,
-                                          fontFamily: 'Display',
-                                          fontWeight: FontWeight.w400,
-                                          height: 0,
-                                        ),
-                                      )
-                                    ],
-                                  ),
+                          ? isRefreshed
+                              ? CircularProgressIndicator(
+                                  color: Color(0xFF3954A4),
                                 )
-                              : (tripsPresent.isEmpty &&
-                                      isAujoudHui &&
-                                      !isPasser &&
-                                      !isAvenir)
-                                  ? Expanded(
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Center(
-                                              child: Image.asset(
-                                                  'assets/images/noTrip.png')),
-                                          SizedBox(
-                                            height: 10,
-                                          ),
-                                          Text(
-                                            "No Trips Avaialble..!!",
-                                            style: TextStyle(
-                                              color: Color(0xFF3954A4),
-                                              fontSize: 20,
-                                              fontFamily: 'Display',
-                                              fontWeight: FontWeight.w400,
-                                              height: 0,
-                                            ),
-                                          )
-                                        ],
+                              : Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Center(
+                                        child: Image.asset(
+                                            'assets/images/noTrip.png')),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    Text(
+                                      "No Trips Avaialble..!!",
+                                      style: TextStyle(
+                                        color: Color(0xFF3954A4),
+                                        fontSize: 20,
+                                        fontFamily: 'Display',
+                                        fontWeight: FontWeight.w400,
+                                        height: 0,
                                       ),
                                     )
-                                  : ListView.builder(
-                                      controller: controller,
-                                      // physics: NeverScrollableScrollPhysics(),
-                                      itemCount: calculateItemCount(),
-                                      itemBuilder: (context, index) {
-                                        if (shouldShowLoader(index)) {
-                                          return Center(
-                                            child: CircularProgressIndicator(
-                                              color: Color(0xFF3954A4),
+                                  ],
+                                )
+                          : isRefreshed
+                              ? CircularProgressIndicator(
+                                  color: Color(0xFF3954A4),
+                                )
+                              : (trips.isEmpty &&
+                                      isPasser &&
+                                      !isAvenir &&
+                                      !isAujoudHui)
+                                  ? isRefreshed
+                                      ? CircularProgressIndicator(
+                                          color: Color(0xFF3954A4),
+                                        )
+                                      : Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Center(
+                                                child: Image.asset(
+                                                    'assets/images/noTrip.png')),
+                                            SizedBox(
+                                              height: 10,
                                             ),
-                                          );
-                                        } else {
-                                          return buildListItem(index);
-                                        }
-                                      },
-                                    ),
+                                            Text(
+                                              "No Trips Avaialble..!!",
+                                              style: TextStyle(
+                                                color: Color(0xFF3954A4),
+                                                fontSize: 20,
+                                                fontFamily: 'Display',
+                                                fontWeight: FontWeight.w400,
+                                                height: 0,
+                                              ),
+                                            )
+                                          ],
+                                        )
+                                  : isRefreshed
+                                      ? CircularProgressIndicator(
+                                          color: Color(0xFF3954A4),
+                                        )
+                                      : (tripsPresent.isEmpty &&
+                                              isAujoudHui &&
+                                              !isPasser &&
+                                              !isAvenir)
+                                          ? isRefreshed
+                                              ? CircularProgressIndicator(
+                                                  color: Color(0xFF3954A4),
+                                                )
+                                              : Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Center(
+                                                        child: Image.asset(
+                                                            'assets/images/noTrip.png')),
+                                                    SizedBox(
+                                                      height: 10,
+                                                    ),
+                                                    Text(
+                                                      "No Trips Avaialble..!!",
+                                                      style: TextStyle(
+                                                        color:
+                                                            Color(0xFF3954A4),
+                                                        fontSize: 20,
+                                                        fontFamily: 'Display',
+                                                        fontWeight:
+                                                            FontWeight.w400,
+                                                        height: 0,
+                                                      ),
+                                                    )
+                                                  ],
+                                                )
+                                          : ListView.builder(
+                                              controller: controller,
+                                              // physics: NeverScrollableScrollPhysics(),
+                                              itemCount: calculateItemCount(),
+                                              itemBuilder: (context, index) {
+                                                if (shouldShowLoader(index)) {
+                                                  return Center(
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                      color: Color(0xFF3954A4),
+                                                    ),
+                                                  );
+                                                } else {
+                                                  return buildListItem(index);
+                                                }
+                                              },
+                                            ),
                 ),
               )
             ],

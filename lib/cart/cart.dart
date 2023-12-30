@@ -845,7 +845,7 @@ class _PlanningState extends State<Cart> {
                                                     ),
                                                     Padding(
                                                       padding: const EdgeInsets
-                                                          .symmetric(
+                                                              .symmetric(
                                                           horizontal: 20),
                                                       child: Container(
                                                         width: MediaQuery.of(
@@ -867,7 +867,7 @@ class _PlanningState extends State<Cart> {
                                                         child: Padding(
                                                           padding:
                                                               const EdgeInsets
-                                                                  .symmetric(
+                                                                      .symmetric(
                                                                   horizontal:
                                                                       10,
                                                                   vertical: 5),
@@ -1096,7 +1096,7 @@ class _PlanningState extends State<Cart> {
                                                     ),
                                                     Padding(
                                                       padding: const EdgeInsets
-                                                          .symmetric(
+                                                              .symmetric(
                                                           horizontal: 20),
                                                       child: Container(
                                                         width: MediaQuery.of(
@@ -1118,7 +1118,7 @@ class _PlanningState extends State<Cart> {
                                                         child: Padding(
                                                           padding:
                                                               const EdgeInsets
-                                                                  .symmetric(
+                                                                      .symmetric(
                                                                   horizontal:
                                                                       10,
                                                                   vertical: 5),
@@ -1324,7 +1324,7 @@ class _PlanningState extends State<Cart> {
                                                     ),
                                                     Padding(
                                                       padding: const EdgeInsets
-                                                          .symmetric(
+                                                              .symmetric(
                                                           horizontal: 20),
                                                       child: Container(
                                                         width: MediaQuery.of(
@@ -1346,7 +1346,7 @@ class _PlanningState extends State<Cart> {
                                                         child: Padding(
                                                           padding:
                                                               const EdgeInsets
-                                                                  .symmetric(
+                                                                      .symmetric(
                                                                   horizontal:
                                                                       10,
                                                                   vertical: 5),
@@ -1615,7 +1615,7 @@ class _PlanningState extends State<Cart> {
                                                     ),
                                                     Padding(
                                                       padding: const EdgeInsets
-                                                          .symmetric(
+                                                              .symmetric(
                                                           horizontal: 20),
                                                       child: Container(
                                                         width: MediaQuery.of(
@@ -1637,7 +1637,7 @@ class _PlanningState extends State<Cart> {
                                                         child: Padding(
                                                           padding:
                                                               const EdgeInsets
-                                                                  .symmetric(
+                                                                      .symmetric(
                                                                   horizontal:
                                                                       10,
                                                                   vertical: 5),
@@ -2325,6 +2325,7 @@ class _PlanningState extends State<Cart> {
         int nombrePassager = courses['nombrePassager'];
         String commentaire = courses['commentaire'];
         String paiement = courses['paiement'];
+        String chauffeur = courses['chauffeur'];
         int client = courses['client'];
         String status1 = courses['affectationCourses'][0]['status1'];
         String status2 = courses['affectationCourses'][0]['status2'];
@@ -2362,7 +2363,8 @@ class _PlanningState extends State<Cart> {
           'imgType': imgType,
           'depart': depart,
           'arrive': arrive,
-          'tarif': tarif
+          'tarif': tarif,
+          'chauffeur': chauffeur
         });
       }
 
@@ -2416,6 +2418,7 @@ class _PlanningState extends State<Cart> {
         int nombrePassager = courses['nombrePassager'];
         String commentaire = courses['commentaire'];
         String paiement = courses['paiement'];
+        String chauffeur = courses['chauffeur'];
         int client = courses['client'];
         var affectationCourses = courses['affectationCourses'];
         String reference = courses['reference'];
@@ -2442,6 +2445,7 @@ class _PlanningState extends State<Cart> {
           'paiement': paiement,
           'reference': reference,
           'dateCourse': dateCourse,
+          'chauffeur': chauffeur,
           // 'distanceTrajet': distanceTrajet,
           // 'dureeTrajet': dureeTrajet,
           'client': client,
@@ -2459,8 +2463,13 @@ class _PlanningState extends State<Cart> {
         });
       }
 
-      print('Admin AVenir with reference: $AdminAvenir');
+      
+
+      print('Admin AVenir with reference: ${AdminAvenir}');
       box.write('AdminAvenir5', AdminAvenir);
+
+      
+      
 
       return AdminAvenir;
     } else {
@@ -2530,6 +2539,7 @@ class _PlanningState extends State<Cart> {
         int nombrePassager = courses['nombrePassager'];
         String commentaire = courses['commentaire'];
         String paiement = courses['paiement'];
+        String chauffeur = courses['chauffeur'];
         int client = courses['client'];
         // String status1 = courses['affectationCourses'][0]['status1'];
         // String status2 = courses['affectationCourses'][0]['status2'];
@@ -2564,7 +2574,8 @@ class _PlanningState extends State<Cart> {
           'imgType': imgType,
           'depart': depart,
           'arrive': arrive,
-          'tarif': tarif
+          'tarif': tarif,
+          'chauffeur': chauffeur
         });
       }
       print('Filtered List in API: $Filteredlist');
@@ -3745,7 +3756,7 @@ class _PlanningState extends State<Cart> {
                                                 children: [
                                                   Padding(
                                                     padding: const EdgeInsets
-                                                        .symmetric(
+                                                            .symmetric(
                                                         horizontal: 10),
                                                     child: Text(
                                                       formattedDate,
@@ -3828,7 +3839,7 @@ class _PlanningState extends State<Cart> {
                                                         child: Padding(
                                                           padding:
                                                               const EdgeInsets
-                                                                  .only(
+                                                                      .only(
                                                                   right: 10,
                                                                   top: 10),
                                                           child: (isFiltered)
@@ -4237,7 +4248,7 @@ class _PlanningState extends State<Cart> {
                                                         Padding(
                                                           padding:
                                                               const EdgeInsets
-                                                                  .symmetric(
+                                                                      .symmetric(
                                                                   horizontal:
                                                                       15),
                                                           child: Row(
@@ -4300,7 +4311,7 @@ class _PlanningState extends State<Cart> {
                                                         Padding(
                                                           padding:
                                                               const EdgeInsets
-                                                                  .symmetric(
+                                                                      .symmetric(
                                                                   horizontal:
                                                                       15),
                                                           child: Row(
@@ -4366,11 +4377,10 @@ class _PlanningState extends State<Cart> {
                                                       ? Column(
                                                           children: [
                                                             Padding(
-                                                              padding:
-                                                                  const EdgeInsets
+                                                              padding: const EdgeInsets
                                                                       .symmetric(
-                                                                      horizontal:
-                                                                          15),
+                                                                  horizontal:
+                                                                      15),
                                                               child: Row(
                                                                 mainAxisAlignment:
                                                                     MainAxisAlignment
@@ -4431,11 +4441,10 @@ class _PlanningState extends State<Cart> {
                                                               height: 10,
                                                             ),
                                                             Padding(
-                                                              padding:
-                                                                  const EdgeInsets
+                                                              padding: const EdgeInsets
                                                                       .symmetric(
-                                                                      horizontal:
-                                                                          15),
+                                                                  horizontal:
+                                                                      15),
                                                               child: Row(
                                                                 mainAxisAlignment:
                                                                     MainAxisAlignment

@@ -39,9 +39,8 @@ class LoginController extends GetxController {
   List<dynamic> tripsAdminFuture = [];
 
   GetStorage box = GetStorage();
+
   Future<List<Map<String, dynamic>>> tripListPast() async {
-    print('past wala chal rha hai>...');
-    print('chal rha hai login par');
     final box = GetStorage();
     final _token = box.read('token') ?? '';
     final storage = GetStorage();
@@ -68,12 +67,11 @@ class LoginController extends GetxController {
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-      print('chal rha hai login par 200 aa gya');
-      print('past wala chal rha hai>...');
       final responseBody = await response.stream.bytesToString();
       final apiData = jsonDecode(responseBody);
 
-      print(apiData);
+      // print(apiData);
+      print('Chauffeur id for the specific trip: ${apiData['chauffeur']}');
 
       List<Map<String, dynamic>> tripList = [];
       for (var courses in apiData['courses']) {
@@ -82,10 +80,12 @@ class LoginController extends GetxController {
         int nombrePassager = courses['nombrePassager'];
         String commentaire = courses['commentaire'];
         String paiement = courses['paiement'];
+        String chauffeur = courses['chauffeur'];
         int client = courses['client'];
         String status1 = courses['affectationCourses'][0]['status1'];
         String status2 = courses['affectationCourses'][0]['status2'];
         String backgroundColor = courses['backgroundColor'];
+        String dateCourse = courses['dateCourse'];
         String distanceTrajet = courses['distanceTrajet'];
         String dureeTrajet = courses['dureeTrajet'];
         String nom = courses['clientDetails']['nom'];
@@ -94,17 +94,6 @@ class LoginController extends GetxController {
         String depart = courses['depart'] ?? '';
         String arrive = courses['arrive'] ?? '';
         int imgType = courses['clientDetails']['typeClient']['id'] ?? "";
-
-        String dateCRude = courses['dateCourse'] ?? "";
-
-        DateTime dateTime = DateTime.parse(dateCRude);
-        tz.TZDateTime parisDateTime =
-            tz.TZDateTime.from(dateTime, tz.getLocation('Europe/Paris'));
-
-        String formattedDate = DateFormat('dd-MMM.hh:MM').format(parisDateTime);
-
-        print('Formatted Date in APi: $formattedDate');
-
         tripList.add({
           'id': id,
           // 'start': start,
@@ -115,7 +104,7 @@ class LoginController extends GetxController {
           'status1': status1,
           'status2': status2,
           'backgroundColor': backgroundColor,
-          'formattedDate': formattedDate,
+          'dateCourse': dateCourse,
           'distanceTrajet': distanceTrajet,
           'dureeTrajet': dureeTrajet,
           'nom': nom,
@@ -124,19 +113,14 @@ class LoginController extends GetxController {
           'depart': depart,
           'arrive': arrive,
           "imgType": imgType,
+          "chauffeur": chauffeur
         });
       }
 
-      print("TripPast Before Storage: $tripList");
-      print('==================================================================');
+      // print(tripList);
       box.write('tripList', tripList);
-      print('==================================================================');
-      List<dynamic> trips = box.read('tripList') ?? [];
-      print('==================================================================');
-      print('Past from APi in storage : $trips');
-      print('==================================================================');
 
-      return tripList;
+      return [];
     } else {
       print(response.reasonPhrase);
     }
@@ -144,7 +128,6 @@ class LoginController extends GetxController {
   }
 
   Future<List<Map<String, dynamic>>> tripListPresent() async {
-    print('chal rha hai login par present');
     final box = GetStorage();
     final _token = box.read('token') ?? '';
     final storage = GetStorage();
@@ -171,25 +154,25 @@ class LoginController extends GetxController {
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-      print('chal rha hai login par 200 aa gya');
       final responseBody = await response.stream.bytesToString();
       final apiData = jsonDecode(responseBody);
 
+      print('Chauffeur id for the specific trip: ${apiData['chauffeur']}');
       print(apiData);
 
-      List<Map<String, dynamic>> tripPresent = [];
+      List<Map<String, dynamic>> tripPresentAPI = [];
       for (var courses in apiData['courses']) {
-        print('============================PRESENT======================================');
         int id = courses['id'];
         // String start = courses['start'];
         int nombrePassager = courses['nombrePassager'];
         String commentaire = courses['commentaire'];
         String paiement = courses['paiement'];
+        String chauffeur = courses['chauffeur'];
         int client = courses['client'];
         String status1 = courses['affectationCourses'][0]['status1'];
         String status2 = courses['affectationCourses'][0]['status2'];
         String backgroundColor = courses['backgroundColor'];
-        // String dateCourse = courses['dateCourse'];
+        String dateCourse = courses['dateCourse'];
         String distanceTrajet = courses['distanceTrajet'];
         String dureeTrajet = courses['dureeTrajet'];
         String nom = courses['clientDetails']['nom'];
@@ -199,17 +182,7 @@ class LoginController extends GetxController {
         String arrive = courses['arrive'] ?? '';
         int imgType = courses['clientDetails']['typeClient']['id'] ?? "";
 
-        String dateCRude = courses['dateCourse'] ?? "";
-
-        DateTime dateTime = DateTime.parse(dateCRude);
-        tz.TZDateTime parisDateTime =
-            tz.TZDateTime.from(dateTime, tz.getLocation('Europe/Paris'));
-
-        String formattedDate = DateFormat('dd-MMM.hh:MM').format(parisDateTime);
-
-        print('Formatted Date in APi: $formattedDate');
-
-        tripPresent.add({
+        tripPresentAPI.add({
           'id': id,
           // 'start': start,
           'nombrePassager': nombrePassager,
@@ -219,7 +192,7 @@ class LoginController extends GetxController {
           'status1': status1,
           'status2': status2,
           'backgroundColor': backgroundColor,
-          'formattedDate': formattedDate,
+          'dateCourse': dateCourse,
           'distanceTrajet': distanceTrajet,
           'dureeTrajet': dureeTrajet,
           'nom': nom,
@@ -228,19 +201,14 @@ class LoginController extends GetxController {
           'depart': depart,
           'arrive': arrive,
           "imgType": imgType,
+          "chauffeur": chauffeur
         });
       }
-      print('==================================================================');
-      print(tripPresent);
-      print('==================================================================');
-      box.write('present', tripPresent);
-      print('==================================================================');
-      List<dynamic> tripsPresent = box.read('present') ?? [];
-      print('==================================================================');
-      print('Present List from APi in storage : $tripsPresent');
-      print('==================================================================');
 
-      return tripPresent;
+      // print(tripPresent);
+      box.write('present', tripPresentAPI);
+
+      return [];
     } else {
       print(response.reasonPhrase);
     }
@@ -248,7 +216,6 @@ class LoginController extends GetxController {
   }
 
   Future<List<Map<String, dynamic>>> tripListFuture() async {
-    print('chal rha hai login par future');
     final box = GetStorage();
     final _token = box.read('token') ?? '';
     final storage = GetStorage();
@@ -275,23 +242,22 @@ class LoginController extends GetxController {
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-      print('chal rha hai login par 200 aa gya');
       final responseBody = await response.stream.bytesToString();
       final apiData = jsonDecode(responseBody);
 
-      List<Map<String, dynamic>> tripFuture = [];
+      List<Map<String, dynamic>> tripFutureAPI = [];
       for (var courses in apiData['courses']) {
-        print('===============================FUTURE===================================');
         int id = courses['id'];
         // String start = courses['start'];
         int nombrePassager = courses['nombrePassager'];
         String commentaire = courses['commentaire'];
         String paiement = courses['paiement'];
+        String chauffeur = courses['chauffeur'];
         int client = courses['client'];
         String status1 = courses['affectationCourses'][0]['status1'];
         String status2 = courses['affectationCourses'][0]['status2'];
         String backgroundColor = courses['backgroundColor'];
-        // String dateCourse = courses['dateCourse'];
+        String dateCourse = courses['dateCourse'];
         String distanceTrajet = courses['distanceTrajet'];
         String dureeTrajet = courses['dureeTrajet'];
         String nom = courses['clientDetails']['nom'];
@@ -300,16 +266,7 @@ class LoginController extends GetxController {
         String depart = courses['depart'] ?? '';
         String arrive = courses['arrive'] ?? '';
         int imgType = courses['clientDetails']['typeClient']['id'] ?? "";
-
-        String dateCRude = courses['dateCourse'] ?? "";
-
-        DateTime dateTime = DateTime.parse(dateCRude);
-        tz.TZDateTime parisDateTime =
-            tz.TZDateTime.from(dateTime, tz.getLocation('Europe/Paris'));
-
-        String formattedDate = DateFormat('dd-MMM.hh:MM').format(parisDateTime);
-
-        tripFuture.add({
+        tripFutureAPI.add({
           'id': id,
           // 'start': start,
           'nombrePassager': nombrePassager,
@@ -319,7 +276,7 @@ class LoginController extends GetxController {
           'status1': status1,
           'status2': status2,
           'backgroundColor': backgroundColor,
-          'formattedDate': formattedDate,
+          'dateCourse': dateCourse,
           'distanceTrajet': distanceTrajet,
           'dureeTrajet': dureeTrajet,
           'nom': nom,
@@ -328,20 +285,15 @@ class LoginController extends GetxController {
           'depart': depart,
           'arrive': arrive,
           "imgType": imgType,
+          'chauffeur': chauffeur
         });
       }
 
-      print('==================================================================');
-      print(tripFuture);
-      print('==================================================================');
-      box.write('future', tripFuture);
-      print('==================================================================');
+      // print(tripFuture);
+      box.write('future', tripFutureAPI);
       List<dynamic> tripFuture2 = box.read('future') ?? [];
-      print('==================================================================');
-      print('Future List from APi in storage : $tripFuture2');
-      print('==================================================================');
 
-      return tripFuture;
+      return [];
     } else {
       print(response.reasonPhrase);
     }
@@ -349,7 +301,6 @@ class LoginController extends GetxController {
   }
 
   Future<List<Map<String, dynamic>>> TripListToday() async {
-    print('=============================ADMINFUTURE=====================================');
     final box = GetStorage();
     final _token = box.read('token') ?? '';
     final storage = GetStorage();
@@ -379,12 +330,12 @@ class LoginController extends GetxController {
 
       List<Map<String, dynamic>> AdminToday = [];
       for (var courses in apiData['courses']) {
-        print('=============================== ADMIN Future after 200 ===================================');
         int id = courses['id'];
         // String start = courses['start'];
         int nombrePassager = courses['nombrePassager'];
         String commentaire = courses['commentaire'];
         String paiement = courses['paiement'];
+        String chauffeur = courses['chauffeur'];
         int client = courses['client'];
         String status1 = courses['affectationCourses'][0]['status1'];
         String status2 = courses['affectationCourses'][0]['status2'];
@@ -396,10 +347,13 @@ class LoginController extends GetxController {
         String prenom = courses['clientDetails']['prenom'];
         String telephone = courses['clientDetails']['tel1'];
         int region = courses['region'];
-        String depart = courses['depart'] ?? '';
-        String arrive = courses['arrive'] ?? '';
+        String depart = courses['depart'];
+        String arrive = courses['arrive'];
 
         int imgType = courses['clientDetails']['typeClient']['id'] ?? "";
+
+        // print('Depart in admin list: $tarif');
+
         AdminToday.add({
           'id': id,
           // 'start': start,
@@ -419,19 +373,15 @@ class LoginController extends GetxController {
           'imgType': imgType,
           'depart': depart,
           'arrive': arrive,
-          'tarif': tarif
+          'tarif': tarif,
+          'chauffeur': chauffeur
         });
       }
 
-      print('==================================================================');  
       print(AdminToday);
-      print('==================================================================');
       box.write('AdminToday5', AdminToday);
-      print('==================================================================');
       List<dynamic> AdminToday2 = box.read('AdminToday5');
-      print('==================================================================');
       print('Admin Today in storage with refernce and date : $AdminToday2');
-      print('==================================================================');
 
       return AdminToday;
     } else {
@@ -441,7 +391,6 @@ class LoginController extends GetxController {
   }
 
   Future<List<Map<String, dynamic>>> TripListFutureAdmin() async {
-    print('================================ADMINFUTURE==================================');
     final box = GetStorage();
     final _token = box.read('token') ?? '';
     final storage = GetStorage();
@@ -474,27 +423,30 @@ class LoginController extends GetxController {
 
       List<Map<String, dynamic>> AdminAvenir = [];
       for (var courses in apiData['courses']) {
-        print('==============================Admin Future after 200====================================');
         int id = courses['id'];
         // String start = courses['start'];
         int nombrePassager = courses['nombrePassager'];
         String commentaire = courses['commentaire'];
         String paiement = courses['paiement'];
+        String chauffeur = courses['chauffeur'];
         int client = courses['client'];
-        String status1 = courses['affectationCourses'][0]['status1'];
-        String status2 = courses['affectationCourses'][0]['status2'];
+        var affectationCourses = courses['affectationCourses'];
         String reference = courses['reference'];
-        int tarif = courses['tarif']; 
         String backgroundColor = courses['backgroundColor'];
         String dateCourse = courses['dateCourse'];
+        // String distanceTrajet = courses['distanceTrajet'];
+        // String dureeTrajet = courses['dureeTrajet'];
         String nom = courses['clientDetails']['nom'];
         String prenom = courses['clientDetails']['prenom'];
         String telephone = courses['clientDetails']['tel1'];
         int region = courses['region'];
-        String depart = courses['depart'] ?? '';
-        String arrive = courses['arrive'] ?? '';
+        String depart = courses['depart'];
+        String arrive = courses['arrive'];
+        int tarif = courses['tarif'];
 
         int imgType = courses['clientDetails']['typeClient']['id'] ?? "";
+
+        // print('Depart in admin list: $tarif');
         AdminAvenir.add({
           'id': id,
           // 'start': start,
@@ -503,10 +455,13 @@ class LoginController extends GetxController {
           'paiement': paiement,
           'reference': reference,
           'dateCourse': dateCourse,
+          'chauffeur': chauffeur,
+          // 'distanceTrajet': distanceTrajet,
+          // 'dureeTrajet': dureeTrajet,
           'client': client,
           'region': region,
-          'status1': status1,
-          'status2': status2,
+          // 'status1': status1,
+          // 'status2': status2,
           'backgroundColor': backgroundColor,
           'nom': nom,
           'prenom': prenom,
@@ -514,17 +469,12 @@ class LoginController extends GetxController {
           'imgType': imgType,
           'depart': depart,
           'arrive': arrive,
-          'tarif': tarif,
+          'tarif': tarif
         });
-
-        print('================================= depart: $depart');
-        print('================================= arrive: $arrive');
       }
-      print('==================================================================');
+
       print('Admin AVenir with reference: $AdminAvenir');
-      print('==================================================================');
       box.write('AdminAvenir5', AdminAvenir);
-      print('==================================================================');
 
       return AdminAvenir;
     } else {
@@ -559,8 +509,6 @@ class LoginController extends GetxController {
       // filteredListDriver();
     });
   }
-
-  
 
   Future<void> login() async {
     final box = GetStorage();
@@ -641,21 +589,29 @@ class LoginController extends GetxController {
 
         if (user.roles.contains('ROLE_CHAUFFEUR')) {
           Future.delayed(Duration(milliseconds: 500), () {
-            print('==================================================================');
+            print(
+                '==================================================================');
             tripListPast();
-            print('==================================================================');
+            print(
+                '==================================================================');
             tripListPresent();
-            print('==================================================================');
+            print(
+                '==================================================================');
             tripListFuture();
-            print('==================================================================');
+            print(
+                '==================================================================');
             TripListToday();
-            print('==================================================================');
+            print(
+                '==================================================================');
             TripListFutureAdmin();
-            print('==================================================================');
+            print(
+                '==================================================================');
             loadInitialData();
-            print('==================================================================');
+            print(
+                '==================================================================');
             print('Data called again on basis of new user after 200 : $trips');
-            print('==================================================================');
+            print(
+                '==================================================================');
             Get.to(
               () => LandingScreen2(),
             )?.then((value) {
